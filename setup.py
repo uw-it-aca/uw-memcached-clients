@@ -7,7 +7,7 @@ See the README on `GitHub
 """
 
 # The VERSION file is created by travis-ci, based on the tag name
-version_path = 'memcached-client/VERSION'
+version_path = 'memcached_clients/VERSION'
 VERSION = open(os.path.join(os.path.dirname(__file__), version_path)).read()
 VERSION = VERSION.replace("\n", "")
 
@@ -18,7 +18,7 @@ url = "https://github.com/uw-it-aca/memcached-client"
 setup(
     name='memcached-client',
     version=VERSION,
-    packages=['client'],
+    packages=['memcached_clients'],
     author="UW-IT AXDD",
     author_email="aca-it@uw.edu",
     include_package_data=True,
