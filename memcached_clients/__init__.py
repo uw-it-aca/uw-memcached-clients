@@ -1,2 +1,2 @@
 from memcached_clients.simple import SimpleClient
-from memcached_clients.restclient import RestclientClient
+from memcached_clients.restclient import RestclientCacheClient
