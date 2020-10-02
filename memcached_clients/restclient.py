@@ -3,6 +3,7 @@ from commonconf import settings
 from importlib import import_module
 from logging import getLogger
 from datetime import datetime
+from hashlib import sha1
 import threading
 
 logger = getLogger(__name__)
@@ -79,7 +80,8 @@ class RestclientCacheClient(SimpleClient):
             self.set(self._make_key(service, url), data, expire=expire)
 
     def _make_key(self, service, url):
-        return "{}-{}".format(service, url)
+        url_key = sha1(url.encode("utf-8")).hexdigest()
+        return "{}-{}".format(service, url_key)
 
     def _make_cache_data(self, data, headers, status, timestamp):
         return {
