@@ -8,9 +8,6 @@ class SimpleCacheOfflineTests(TestCase):
     def setUp(self):
         self.client = SimpleClient()
 
-    def test_valid_method(self):
-        self.assertRaises(MemcacheError, self.client.get, "key")
-
     def test_invalid_method(self):
         self.assertRaises(AttributeError, self.client.fake)
 

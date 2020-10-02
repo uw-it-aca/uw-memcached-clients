@@ -1,3 +1,4 @@
+from pymemcache.exceptions import MemcacheError
 from pymemcache.client.hash import HashClient
 from pymemcache import serde
 from commonconf import settings
@@ -26,8 +27,9 @@ class SimpleClient():
         def handler(*args, **kwargs):
             try:
                 return getattr(self.client, name)(*args, **kwargs)
-            except Exception as ex:
+            except MemcacheError as ex:
                 logger.error("CACHE {}: {}".format(name, ex))
+            except AttributeError:
                 raise
         return handler
 
