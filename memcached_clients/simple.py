@@ -7,10 +7,6 @@ import threading
 logger = getLogger(__name__)
 
 
-class CachePolicy():
-    pass
-
-
 class SimpleClient():
     def __init__(self):
         thread_id = threading.current_thread().ident
@@ -29,13 +25,13 @@ class SimpleClient():
         except Exception as ex:
             logger.error("CACHE GET: {}".format(ex))
 
-    def set(self, key, data, expire=None):
+    def set(self, key, data, expire=0):
         try:
             self.client.set(key, data, expire=expire)
         except Exception as ex:
             logger.error("CACHE SET: {}".format(ex))
 
-    def replace(self, key, data, expire=None):
+    def replace(self, key, data, expire=0):
         try:
             self.client.replace(key, data, expire=expire)
         except Exception as ex:
