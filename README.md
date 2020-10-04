@@ -14,7 +14,7 @@ Installation:
 
 To use this client, you'll need these settings in your application or script:
 
-    # A list() of tuple(hostname, port) or string containing a UNIX socket path.
+    # A list of tuples (hostname, port) or strings containing a UNIX socket path.
     MEMCACHED_SERVERS=[]
 
 Optional settings:
@@ -22,5 +22,6 @@ Optional settings:
     MEMCACHED_MAX_POOL_SIZE=10
     MEMCACHE_CONNECT_TIMEOUT=2
     MEMCACHED_TIMEOUT=2
+    MEMCACHE_NOREPLY=True
 
 See examples for usage.  Pull requests welcome.
