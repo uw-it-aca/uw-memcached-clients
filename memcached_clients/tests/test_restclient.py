@@ -6,14 +6,16 @@ import os
 
 
 class CachePolicyTest(CachePolicy):
-    def get_cache_expiry(self, service, url):
+    def get_cache_expiry(self, service, url, status=None):
         if service == "abc":
+            if status == 404:
+                return None
             return 60
         return 0
 
 
 class CachePolicyNone(CachePolicy):
-    def get_cache_expiry(self, service, url):
+    def get_cache_expiry(self, service, url, status=None):
         return None
 
 
@@ -49,7 +51,13 @@ class CachePolicyTests(TestCase):
     def test_get_cache_expiry(self):
         policy = CachePolicyTest()
         self.assertEqual(
-            policy.get_cache_expiry("abc", "https://api.edu/api/v1/test"), 60)
+            policy.get_cache_expiry("xyz", "/api/v1/test", 200), 0)
+
+        self.assertEqual(
+            policy.get_cache_expiry("abc", "/api/v1/test", 200), 60)
+
+        self.assertEqual(
+            policy.get_cache_expiry("abc", "/api/v1/test", 404), None)
 
 
 class RestclientCacheClientOfflineTests(TestCase):
@@ -106,7 +114,9 @@ class RestclientCacheClientOfflineTests(TestCase):
 class RestclientCacheClientLiveTests(TestCase):
     def setUp(self):
         self.test_response = CachedHTTPResponse(
-            headers={}, status=200, data="some data")
+            headers={}, status=200, data={"test": 12345})
+
+        RestclientCacheClient.policy = None
         self.client = RestclientCacheClient()
         self.client.flush_all()
 
@@ -117,7 +127,7 @@ class RestclientCacheClientLiveTests(TestCase):
         self.client.updateCache("abc", "/api/v1/test", self.test_response)
 
         response = self.client.getCache("abc", "/api/v1/test")
-        self.assertEqual(response.data, "some data")
+        self.assertEqual(response.data, self.test_response.data)
 
     def test_deleteCache(self):
         reply = self.client.deleteCache("abc", "/api/v1/test")
@@ -139,13 +149,13 @@ class RestclientCacheClientLiveTests(TestCase):
         self.client.updateCache("abc", "/api/v1/test", self.test_response)
 
         response = self.client.getCache("abc", "/api/v1/test")
-        self.assertEqual(response.data, "some data")
+        self.assertEqual(response.data, self.test_response.data)
 
     def test_processResponse(self):
         self.client.processResponse("abc", "/api/v1/test", self.test_response)
 
         response = self.client.getCache("abc", "/api/v1/test")
-        self.assertEqual(response.data, "some data")
+        self.assertEqual(response.data, self.test_response.data)
 
     @override_settings(RESTCLIENTS_CACHE_POLICY_CLASS=(
         "memcached_clients.tests.test_restclient.CachePolicyNone"))

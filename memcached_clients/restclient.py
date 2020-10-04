@@ -28,10 +28,10 @@ class CachedHTTPResponse():
 
 
 class CachePolicy():
-    def get_cache_expiry(self, service, url):
+    def get_cache_expiry(self, service, url, status=None):
         """
-        Overridable method for setting the cache expiry per service and url.
-        Valid return values are:
+        Overridable method for setting the cache expiry per service, url,
+        and status.  Valid return values are:
           * Number of seconds until the item is expired from the cache,
           * Zero, for no expiry (the default),
           * None, indicating that the item should not be cached.
@@ -67,7 +67,7 @@ class RestclientCacheClient(SimpleClient):
         return self.delete(self._create_key(service, url))
 
     def updateCache(self, service, url, response):
-        expire = self.policy.get_cache_expiry(service, url)
+        expire = self.policy.get_cache_expiry(service, url, response.status)
         if expire is not None:
             key = self._create_key(service, url)
             data = self._format_data(response)
