@@ -9,26 +9,21 @@ logger = getLogger(__name__)
 
 
 class SimpleClient():
+    """
+    A settings-based wrapper around pymemcache.
+    """
     def __init__(self):
-        thread_id = threading.current_thread().ident
-        if not hasattr(SimpleClient, "_clients"):
-            SimpleClient._clients = {}
-
-        if thread_id in SimpleClient._clients:
-            self.client = SimpleClient._clients[thread_id]
-        else:
-            self.client = self._init_client()
-            SimpleClient._clients[thread_id] = self.client
+        self.client = self._init_client()
 
     def __getattr__(self, name, *args, **kwargs):
         """
-        Pass method calls through to the client.
+        Pass method calls through to the client, and add logging for errors.
         """
         def handler(*args, **kwargs):
             try:
                 return getattr(self.client, name)(*args, **kwargs)
             except MemcacheError as ex:
-                logger.error("CACHE {}: {}".format(name, ex))
+                logger.error("memcached {}: {}".format(name, ex))
             except AttributeError:
                 raise
         return handler
@@ -40,4 +35,5 @@ class SimpleClient():
             max_pool_size=getattr(settings, "MEMCACHED_MAX_POOL_SIZE", 10),
             connect_timeout=getattr(settings, "MEMCACHED_CONNECT_TIMEOUT", 2),
             timeout=getattr(settings, "MEMCACHED_TIMEOUT", 2),
+            default_noreply=getattr(settings, "MEMCACHED_NOREPLY", True),
             serde=serde.pickle_serde)

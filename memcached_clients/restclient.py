@@ -2,7 +2,6 @@ from memcached_clients import SimpleClient
 from commonconf import settings
 from importlib import import_module
 from logging import getLogger
-from datetime import datetime
 from hashlib import sha1
 import threading
 
@@ -14,38 +13,43 @@ class CachedHTTPResponse():
     Represents an HTTPResponse, implementing methods as needed.
     """
     def __init__(self, **kwargs):
-        self.headers = kwargs.get("headers")
+        self.headers = kwargs.get("headers", {})
         self.status = kwargs.get("status")
         self.data = kwargs.get("data")
 
     def read(self):
         return self.data
 
-    def getheader(self, field, default=''):
-        if self.headers:
-            for header in self.headers:
-                if field.lower() == header.lower():
-                    return self.headers[header]
+    def getheader(self, val, default=''):
+        for header in self.headers:
+            if val.lower() == header.lower():
+                return self.headers[header]
         return default
 
 
 class CachePolicy():
-    def get_cache_expiration_time(self, service, url):
+    def get_cache_expiry(self, service, url):
+        """
+        Overridable method for setting the cache expiry per service and url.
+        Valid return values are:
+          * Number of seconds until the item is expired from the cache,
+          * Zero, for no expiry (the default),
+          * None, indicating that the item should not be cached.
+        """
         return 0
 
 
 class RestclientCacheClient(SimpleClient):
+    policy = None
+    _clients = {}
+
     def __init__(self):
-        policy_class = getattr(settings, "RESTCLIENTS_CACHE_POLICY_CLASS")
-        if policy_class:
-            self.policy = self._init_policy(policy_class)
-        else:
-            self.policy = CachePolicy()
+        if RestclientCacheClient.policy is None:
+            policy_class = getattr(settings, "RESTCLIENTS_CACHE_POLICY_CLASS",
+                                   "memcached_clients.restclient.CachePolicy")
+            RestclientCacheClient.policy = self._get_policy(policy_class)
 
         thread_id = threading.current_thread().ident
-        if not hasattr(RestclientCacheClient, "_clients"):
-            RestclientCacheClient._clients = {}
-
         if thread_id in RestclientCacheClient._clients:
             self.client = RestclientCacheClient._clients[thread_id]
         else:
@@ -53,51 +57,51 @@ class RestclientCacheClient(SimpleClient):
             RestclientCacheClient._clients[thread_id] = self.client
 
     def getCache(self, service, url, headers):
-        expire = self.policy.get_cache_expiration_time(service, url)
+        expire = self.policy.get_cache_expiry(service, url)
         if expire is not None:
-            data = self.get(self._make_key(service, url))
+            data = self.get(self._create_key(service, url))
             if data:
                 return {"response": CachedHTTPResponse(**data)}
 
     def deleteCache(self, service, url):
-        return self.delete(self._make_key(service, url))
+        return self.delete(self._create_key(service, url))
 
-    def updateCache(self, service, url, new_data, new_data_dt):
-        expire = self.policy.get_cache_expiration_time(service, url)
+    def updateCache(self, service, url, response):
+        expire = self.policy.get_cache_expiry(service, url)
         if expire is not None:
-            data = self._make_cache_data(new_data, {}, 200, new_data_dt)
-            self.replace(self._make_key(service, url), data, expire=expire)
+            key = self._create_key(service, url)
+            data = self._format_data(response)
+            return self.set(key, data, expire=expire)
 
-    def processResponse(self, service, url, response):
-        expire = self.policy.get_cache_expiration_time(service, url)
-        if expire is not None:
-            header_data = {}
-            for header in response.headers:
-                header_data[header] = response.getheader(header)
+    processResponse = updateCache
 
-            data = self._make_cache_data(
-                response.data, header_data, response.status, datetime.now())
-            self.set(self._make_key(service, url), data, expire=expire)
-
-    def _make_key(self, service, url):
+    @staticmethod
+    def _create_key(service, url):
         url_key = sha1(url.encode("utf-8")).hexdigest()
         return "{}-{}".format(service, url_key)
 
-    def _make_cache_data(self, data, headers, status, timestamp):
+    @staticmethod
+    def _format_data(response):
+        # This step is needed because HTTPHeaderDict isn't serializable
+        headers = {}
+        if response.headers is not None:
+            for header in response.headers:
+                headers[header] = response.getheader(header)
+
         return {
-            "status": status,
+            "status": response.status,
             "headers": headers,
-            "data": data,
-            "time_stamp": timestamp.isoformat(),
+            "data": response.data
         }
 
-    def _init_policy(self, dotted_path):
+    @staticmethod
+    def _get_policy(dotted_path):
         try:
             module_path, class_name = dotted_path.rsplit('.', 1)
-        except ValueError:
+        except (AttributeError, ValueError):
             raise ImportError("Not a module path: {}".format(dotted_path))
 
-        module = import_module(module)
+        module = import_module(module_path)
 
         try:
             return getattr(module, class_name)
