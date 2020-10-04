@@ -1,24 +1,49 @@
-from unittest import TestCase, skipIf
+from unittest import TestCase, skipUnless
 from commonconf import settings, override_settings
 from memcached_clients import SimpleClient
 from pymemcache.exceptions import MemcacheError
+import os
 
 
 class SimpleCacheOfflineTests(TestCase):
     def setUp(self):
         self.client = SimpleClient()
 
-    def test_valid_method(self):
-        self.assertRaises(MemcacheError, self.client.get, "key")
-
     def test_invalid_method(self):
         self.assertRaises(AttributeError, self.client.fake)
 
+    def test_default_settings(self):
+        client = self.client.client
+        self.assertEqual(client.default_kwargs.get("max_pool_size"), 10)
+        self.assertEqual(client.default_kwargs.get("connect_timeout"), 2)
+        self.assertEqual(client.default_kwargs.get("timeout"), 2)
+        self.assertEqual(client.default_kwargs.get("default_noreply"), True)
 
-@skipIf(not getattr(settings, "MEMCACHED_SERVERS"), "Memcached not configured")
-@override_settings()
-class SimpleCacheTests(TestCase):
-    @override_settings(MEMCACHED_SERVERS=[("localhost", "11211")])
+
+@override_settings(MEMCACHED_SERVERS=[("localhost", "11211")],
+                   MEMCACHED_MAX_POOL_SIZE=5,
+                   MEMCACHED_TIMEOUT=3,
+                   MEMCACHED_NOREPLY=False)
+@skipUnless(os.getenv("LIVE_TESTS"), "Set LIVE_TESTS=1 to run tests")
+class SimpleCacheLiveTests(TestCase):
     def setUp(self):
         self.client = SimpleClient()
-        self.client.client.flush_all()
+        self.client.flush_all()
+
+    def test_settings(self):
+        client = self.client.client
+        self.assertEqual(client.default_kwargs.get("max_pool_size"), 5)
+        self.assertEqual(client.default_kwargs.get("connect_timeout"), 2)
+        self.assertEqual(client.default_kwargs.get("timeout"), 3)
+        self.assertEqual(client.default_kwargs.get("default_noreply"), False)
+
+    def test_simple_set_get(self):
+        key = "abc"
+
+        reply = self.client.set(key, 12345)
+        self.assertTrue(reply)
+        self.assertEqual(self.client.get(key), 12345)
+
+        reply = self.client.set(key, ["a", "b", "c"])
+        self.assertTrue(reply)
+        self.assertEqual(self.client.get(key), ["a", "b", "c"])
