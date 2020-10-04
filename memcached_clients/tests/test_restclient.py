@@ -85,7 +85,7 @@ class RestclientCacheClientOfflineTests(TestCase):
         self.assertRaises(ImportError, RestclientCacheClient._get_policy,
                           None)
 
-        self.assertEqual(RestclientCacheClient._get_policy(
+        self.assertIsInstance(RestclientCacheClient._get_policy(
             "memcached_clients.tests.test_restclient.CachePolicyTest"),
             CachePolicyTest)
 
@@ -93,10 +93,10 @@ class RestclientCacheClientOfflineTests(TestCase):
         "memcached_clients.tests.test_restclient.CachePolicyTest"))
     def test_policy_setting(self):
         client1 = RestclientCacheClient()
-        self.assertIs(client1.policy, CachePolicyTest)
+        self.assertIsInstance(client1.policy, CachePolicyTest)
 
         client2 = RestclientCacheClient()
-        self.assertIs(client2.policy, CachePolicyTest)
+        self.assertIsInstance(client2.policy, CachePolicyTest)
         self.assertIs(client1.policy, client2.policy)
 
 

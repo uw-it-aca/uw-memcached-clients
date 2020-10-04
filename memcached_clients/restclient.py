@@ -73,8 +73,7 @@ class RestclientCacheClient(SimpleClient):
             data = self._format_data(response)
             return self.set(key, data, expire=expire)
 
-    def processResponse(self, service, url, response):
-        return self.updateCache(service, url, response)
+    processResponse = updateCache
 
     @staticmethod
     def _create_key(service, url):
@@ -105,7 +104,7 @@ class RestclientCacheClient(SimpleClient):
         module = import_module(module_path)
 
         try:
-            return getattr(module, class_name)
+            return getattr(module, class_name)()
         except AttributeError:
             raise ImportError("Module {} does not define {}".format(
                 module_path, class_name))
