@@ -56,7 +56,7 @@ class RestclientCacheClient(SimpleClient):
             self.client = self._init_client()
             RestclientCacheClient._clients[thread_id] = self.client
 
-    def getCache(self, service, url, headers):
+    def getCache(self, service, url, headers=None):
         expire = self.policy.get_cache_expiry(service, url)
         if expire is not None:
             data = self.get(self._create_key(service, url))
@@ -73,7 +73,8 @@ class RestclientCacheClient(SimpleClient):
             data = self._format_data(response)
             return self.set(key, data, expire=expire)
 
-    processResponse = updateCache
+    def processResponse(self, service, url, response):
+        return self.updateCache(service, url, response)
 
     @staticmethod
     def _create_key(service, url):

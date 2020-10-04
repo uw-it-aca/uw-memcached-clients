@@ -25,8 +25,10 @@ class SimpleCacheLiveTests(TestCase):
     def test_simple_set_get(self):
         key = "abc"
 
-        self.client.set(key, 11111)
-        self.assertEqual(self.client.get(key), 111111)
+        reply = self.client.set(key, 12345)
+        self.assertIsTrue(reply)
+        self.assertEqual(self.client.get(key), 12345)
 
-        self.client.set(key, ["a", "b", "c"])
+        reply = self.client.set(key, ["a", "b", "c"])
+        self.assertIsTrue(reply)
         self.assertEqual(self.client.get(key), ["a", "b", "c"])
