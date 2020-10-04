@@ -127,14 +127,13 @@ class RestclientCacheClientLiveTests(TestCase):
         self.client.updateCache("abc", "/api/v1/test", self.test_response)
 
         response = self.client.getCache("abc", "/api/v1/test")
-        self.assertEqual(response.data, self.test_response.data)
+        self.assertEqual(response["response"].data, self.test_response.data)
 
     def test_deleteCache(self):
         reply = self.client.deleteCache("abc", "/api/v1/test")
         self.assertFalse(reply)
 
-        self.client.set(self.client._create_key("abc", "/api/v1/test"),
-                        self.client._format_data(self.test_response))
+        self.client.updateCache("abc", "/api/v1/test", self.test_response)
 
         reply = self.client.deleteCache("abc", "/api/v1/test")
         self.assertTrue(reply)
@@ -149,13 +148,13 @@ class RestclientCacheClientLiveTests(TestCase):
         self.client.updateCache("abc", "/api/v1/test", self.test_response)
 
         response = self.client.getCache("abc", "/api/v1/test")
-        self.assertEqual(response.data, self.test_response.data)
+        self.assertEqual(response["response"].data, self.test_response.data)
 
     def test_processResponse(self):
         self.client.processResponse("abc", "/api/v1/test", self.test_response)
 
         response = self.client.getCache("abc", "/api/v1/test")
-        self.assertEqual(response.data, self.test_response.data)
+        self.assertEqual(response["response"].data, self.test_response.data)
 
     @override_settings(RESTCLIENTS_CACHE_POLICY_CLASS=(
         "memcached_clients.tests.test_restclient.CachePolicyNone"))
