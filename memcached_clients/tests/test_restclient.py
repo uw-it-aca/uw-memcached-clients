@@ -163,7 +163,7 @@ class RestclientCacheClientLiveTests(TestCase):
 
         reply = self.client.updateCache(
             "abc", "/api/v1/test", self.test_response)
-        self.assertNone(reply)
+        self.assertIsNone(reply)
 
         response = self.client.getCache("abc", "/api/v1/test")
         self.assertIsNone(response)
