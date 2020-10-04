@@ -114,8 +114,7 @@ class RestclientCacheClientLiveTests(TestCase):
         response = self.client.getCache("abc", "/api/v1/test")
         self.assertIsNone(response)
 
-        self.client.set(self.client._create_key("abc", "/api/v1/test"),
-                        self.client._format_data(self.test_response))
+        self.client.updateCache("abc", "/api/v1/test", self.test_response)
 
         response = self.client.getCache("abc", "/api/v1/test")
         self.assertEqual(response.data, "some data")
@@ -137,17 +136,13 @@ class RestclientCacheClientLiveTests(TestCase):
         response = self.client.getCache("abc", "/api/v1/test")
         self.assertIsNone(response)
 
-        reply = self.client.updateCache(
-            "abc", "/api/v1/test", self.test_response)
-        self.assertTrue(reply)
+        self.client.updateCache("abc", "/api/v1/test", self.test_response)
 
         response = self.client.getCache("abc", "/api/v1/test")
         self.assertEqual(response.data, "some data")
 
     def test_processResponse(self):
-        reply = self.client.processResponse(
-            "abc", "/api/v1/test", self.test_response)
-        self.assertTrue(reply)
+        self.client.processResponse("abc", "/api/v1/test", self.test_response)
 
         response = self.client.getCache("abc", "/api/v1/test")
         self.assertEqual(response.data, "some data")
@@ -161,9 +156,7 @@ class RestclientCacheClientLiveTests(TestCase):
         response = self.client.getCache("abc", "/api/v1/test")
         self.assertIsNone(response)
 
-        reply = self.client.updateCache(
-            "abc", "/api/v1/test", self.test_response)
-        self.assertIsNone(reply)
+        self.client.updateCache("abc", "/api/v1/test", self.test_response)
 
         response = self.client.getCache("abc", "/api/v1/test")
         self.assertIsNone(response)
