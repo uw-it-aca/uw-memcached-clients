@@ -12,8 +12,8 @@ class SimpleClient():
     """
     A settings-based wrapper around pymemcache.
     """
-    def __init__(self):
-        self.client = self._init_client()
+    def __init__(self, **kwargs):
+        self.client = self._init_client(**kwargs)
 
     def __getattr__(self, name, *args, **kwargs):
         """
@@ -28,12 +28,16 @@ class SimpleClient():
                 raise
         return handler
 
-    def _init_client(self):
+    def _init_client(self, **kwargs):
+        default_noreply = kwargs.get("default_noreply")
+        if default_noreply is None:
+            default_noreply = getattr(settings, "MEMCACHED_NOREPLY", True)
+
         return HashClient(
             getattr(settings, "MEMCACHED_SERVERS", []),
             use_pooling=True,
             max_pool_size=getattr(settings, "MEMCACHED_MAX_POOL_SIZE", 10),
             connect_timeout=getattr(settings, "MEMCACHED_CONNECT_TIMEOUT", 2),
             timeout=getattr(settings, "MEMCACHED_TIMEOUT", 2),
-            default_noreply=getattr(settings, "MEMCACHED_NOREPLY", True),
+            default_noreply=default_noreply,
             serde=serde.pickle_serde)

@@ -43,7 +43,7 @@ class RestclientCacheClient(SimpleClient):
     policy = None
     _clients = {}
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         if RestclientCacheClient.policy is None:
             policy_class = getattr(settings, "RESTCLIENTS_CACHE_POLICY_CLASS",
                                    "memcached_clients.restclient.CachePolicy")
@@ -53,7 +53,7 @@ class RestclientCacheClient(SimpleClient):
         if thread_id in RestclientCacheClient._clients:
             self.client = RestclientCacheClient._clients[thread_id]
         else:
-            self.client = self._init_client()
+            self.client = self._init_client(**kwargs)
             RestclientCacheClient._clients[thread_id] = self.client
 
     def getCache(self, service, url, headers=None):

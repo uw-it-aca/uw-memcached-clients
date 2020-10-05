@@ -108,7 +108,7 @@ class RestclientCacheClientOfflineTests(TestCase):
         self.assertIs(client1.policy, client2.policy)
 
 
-@override_settings(MEMCACHED_SERVERS=[("localhost", "11211")],
+@override_settings(MEMCACHED_SERVERS=["localhost:11211"],
                    MEMCACHED_NOREPLY=False)
 @skipUnless(os.getenv("LIVE_TESTS"), "Set LIVE_TESTS=1 to run tests")
 class RestclientCacheClientLiveTests(TestCase):
