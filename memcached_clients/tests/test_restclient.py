@@ -2,7 +2,6 @@ from unittest import TestCase, skipUnless
 from commonconf import settings, override_settings
 from memcached_clients.restclient import (
     RestclientCacheClient, CachedHTTPResponse)
-from memcached_clients.util import import_policy
 import os
 
 
