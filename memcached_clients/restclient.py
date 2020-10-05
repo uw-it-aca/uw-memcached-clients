@@ -25,7 +25,7 @@ class CachedHTTPResponse():
 
 class RestclientCacheClient(SimpleClient):
     def getCache(self, service, url, headers=None):
-        expire = self.policy.get_cache_expiry(service, url)
+        expire = self.get_cache_expiry(service, url)
         if expire is not None:
             data = self.get(self._create_key(service, url))
             if data:
@@ -35,7 +35,7 @@ class RestclientCacheClient(SimpleClient):
         return self.delete(self._create_key(service, url))
 
     def updateCache(self, service, url, response):
-        expire = self.policy.get_cache_expiry(service, url, response.status)
+        expire = self.get_cache_expiry(service, url, response.status)
         if expire is not None:
             key = self._create_key(service, url)
             data = self._format_data(response)
