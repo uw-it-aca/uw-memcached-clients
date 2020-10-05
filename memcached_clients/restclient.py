@@ -1,11 +1,7 @@
 from memcached_clients import SimpleClient
-from commonconf import settings
-from importlib import import_module
-from logging import getLogger
 from hashlib import sha1
-import threading
 
-logger = getLogger(__name__)
+DEFAULT_EXPIRY = 60 * 5
 
 
 class CachedHTTPResponse():
@@ -27,35 +23,7 @@ class CachedHTTPResponse():
         return default
 
 
-class CachePolicy():
-    def get_cache_expiry(self, service, url, status=None):
-        """
-        Overridable method for setting the cache expiry per service, url,
-        and status.  Valid return values are:
-          * Number of seconds until the item is expired from the cache,
-          * Zero, for no expiry (the default),
-          * None, indicating that the item should not be cached.
-        """
-        return 0
-
-
 class RestclientCacheClient(SimpleClient):
-    policy = None
-    _clients = {}
-
-    def __init__(self, **kwargs):
-        if RestclientCacheClient.policy is None:
-            policy_class = getattr(settings, "RESTCLIENTS_CACHE_POLICY_CLASS",
-                                   "memcached_clients.restclient.CachePolicy")
-            RestclientCacheClient.policy = self._get_policy(policy_class)
-
-        thread_id = threading.current_thread().ident
-        if thread_id in RestclientCacheClient._clients:
-            self.client = RestclientCacheClient._clients[thread_id]
-        else:
-            self.client = self._init_client(**kwargs)
-            RestclientCacheClient._clients[thread_id] = self.client
-
     def getCache(self, service, url, headers=None):
         expire = self.policy.get_cache_expiry(service, url)
         if expire is not None:
@@ -75,6 +43,18 @@ class RestclientCacheClient(SimpleClient):
 
     processResponse = updateCache
 
+    def get_cache_expiry(self, service, url, status=None):
+        """
+        Overridable method for setting the cache expiry per service, url,
+        and status.  Valid return values are:
+          * Number of seconds until the item is expired from the cache,
+          * Zero, for no expiry,
+          * None, indicating that the item should not be cached.
+        """
+        return DEFAULT_EXPIRY
+
+    get_cache_expiration_time = get_cache_expiry
+
     @staticmethod
     def _create_key(service, url):
         url_key = sha1(url.encode("utf-8")).hexdigest()
@@ -93,18 +73,3 @@ class RestclientCacheClient(SimpleClient):
             "headers": headers,
             "data": response.data
         }
-
-    @staticmethod
-    def _get_policy(dotted_path):
-        try:
-            module_path, class_name = dotted_path.rsplit('.', 1)
-        except (AttributeError, ValueError):
-            raise ImportError("Not a module path: {}".format(dotted_path))
-
-        module = import_module(module_path)
-
-        try:
-            return getattr(module, class_name)()
-        except AttributeError:
-            raise ImportError("Module {} does not define {}".format(
-                module_path, class_name))

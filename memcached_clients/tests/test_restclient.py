@@ -1,11 +1,12 @@
 from unittest import TestCase, skipUnless
 from commonconf import settings, override_settings
 from memcached_clients.restclient import (
-    RestclientCacheClient, CachePolicy, CachedHTTPResponse)
+    RestclientCacheClient, CachedHTTPResponse)
+from memcached_clients.util import import_policy
 import os
 
 
-class CachePolicyTest(CachePolicy):
+class ClientCachePolicyTest(RestclientCacheClient):
     def get_cache_expiry(self, service, url, status=None):
         if service == "abc":
             if status == 404:
@@ -14,7 +15,7 @@ class CachePolicyTest(CachePolicy):
         return 0
 
 
-class CachePolicyNone(CachePolicy):
+class ClientCachePolicyNone(RestclientCacheClient):
     def get_cache_expiry(self, service, url, status=None):
         return None
 
@@ -49,21 +50,18 @@ class CachedHTTPResponseTests(TestCase):
 
 class CachePolicyTests(TestCase):
     def test_get_cache_expiry(self):
-        policy = CachePolicyTest()
+        client = ClientCachePolicyTest()
         self.assertEqual(
-            policy.get_cache_expiry("xyz", "/api/v1/test", 200), 0)
+            client.get_cache_expiry("xyz", "/api/v1/test", 200), 0)
 
         self.assertEqual(
-            policy.get_cache_expiry("abc", "/api/v1/test", 200), 60)
+            client.get_cache_expiry("abc", "/api/v1/test", 200), 60)
 
         self.assertEqual(
-            policy.get_cache_expiry("abc", "/api/v1/test", 404), None)
+            client.get_cache_expiry("abc", "/api/v1/test", 404), None)
 
 
 class RestclientCacheClientOfflineTests(TestCase):
-    def setUp(self):
-        RestclientCacheClient.policy = None
-
     def test_create_key(self):
         client = RestclientCacheClient()
         self.assertEqual(client._create_key("abc", "/api/v1/test"),
@@ -86,27 +84,6 @@ class RestclientCacheClientOfflineTests(TestCase):
             "data": self.test_response.data
         })
 
-    def test_get_policy(self):
-        self.assertRaises(ImportError, RestclientCacheClient._get_policy,
-                          "memcached_clients.tests.Fake")
-
-        self.assertRaises(ImportError, RestclientCacheClient._get_policy,
-                          None)
-
-        self.assertIsInstance(RestclientCacheClient._get_policy(
-            "memcached_clients.tests.test_restclient.CachePolicyTest"),
-            CachePolicyTest)
-
-    @override_settings(RESTCLIENTS_CACHE_POLICY_CLASS=(
-        "memcached_clients.tests.test_restclient.CachePolicyTest"))
-    def test_policy_setting(self):
-        client1 = RestclientCacheClient()
-        self.assertIsInstance(client1.policy, CachePolicyTest)
-
-        client2 = RestclientCacheClient()
-        self.assertIsInstance(client2.policy, CachePolicyTest)
-        self.assertIs(client1.policy, client2.policy)
-
 
 @override_settings(MEMCACHED_SERVERS=["localhost:11211"],
                    MEMCACHED_NOREPLY=False)
@@ -116,7 +93,6 @@ class RestclientCacheClientLiveTests(TestCase):
         self.test_response = CachedHTTPResponse(
             headers={}, status=200, data={"test": 12345})
 
-        RestclientCacheClient.policy = None
         self.client = RestclientCacheClient()
         self.client.flush_all()
 
@@ -156,11 +132,8 @@ class RestclientCacheClientLiveTests(TestCase):
         response = self.client.getCache("abc", "/api/v1/test")
         self.assertEqual(response["response"].data, self.test_response.data)
 
-    @override_settings(RESTCLIENTS_CACHE_POLICY_CLASS=(
-        "memcached_clients.tests.test_restclient.CachePolicyNone"))
     def test_cache_policy_none(self):
-        RestclientCacheClient.policy = None
-        self.client = RestclientCacheClient()
+        self.client = ClientCachePolicyNone()
 
         response = self.client.getCache("abc", "/api/v1/test")
         self.assertIsNone(response)
