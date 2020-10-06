@@ -1,2 +1,2 @@
-from memcached_clients.simple import SimpleClient
-from memcached_clients.restclient import RestclientCacheClient
+from memcached_clients.base import PymemcacheClient
+from memcached_clients.restclient import RestclientPymemcacheClient

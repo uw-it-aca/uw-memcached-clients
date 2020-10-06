@@ -1,7 +1,6 @@
-from memcached_clients import SimpleClient
+from memcached_clients import PymemcacheClient
+from commonconf import settings
 from hashlib import sha1
-
-DEFAULT_EXPIRY = 60 * 5
 
 
 class CachedHTTPResponse():
@@ -23,7 +22,7 @@ class CachedHTTPResponse():
         return default
 
 
-class RestclientCacheClient(SimpleClient):
+class RestclientPymemcacheClient(PymemcacheClient):
     def getCache(self, service, url, headers=None):
         expire = self.get_cache_expiry(service, url)
         if expire is not None:
@@ -51,7 +50,7 @@ class RestclientCacheClient(SimpleClient):
           * Zero, for no expiry,
           * None, indicating that the item should not be cached.
         """
-        return DEFAULT_EXPIRY
+        return getattr(settings, "RESTCLIENTS_MEMCACHED_DEFAULT_EXPIRY", 300)
 
     get_cache_expiration_time = get_cache_expiry
 

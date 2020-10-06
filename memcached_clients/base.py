@@ -8,7 +8,7 @@ from logging import getLogger
 logger = getLogger(__name__)
 
 
-class SimpleClient():
+class PymemcacheClient():
     """
     A settings-based wrapper around pymemcache.
     """
