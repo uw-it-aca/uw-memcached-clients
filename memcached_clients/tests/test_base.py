@@ -1,13 +1,13 @@
 from unittest import TestCase, skipUnless
 from commonconf import settings, override_settings
-from memcached_clients import SimpleClient
+from memcached_clients import PymemcacheClient
 from pymemcache.exceptions import MemcacheError
 import os
 
 
-class SimpleCacheOfflineTests(TestCase):
+class PymemcacheCacheOfflineTests(TestCase):
     def setUp(self):
-        self.client = SimpleClient()
+        self.client = PymemcacheClient()
 
     def test_invalid_method(self):
         self.assertRaises(AttributeError, self.client.fake)
@@ -25,9 +25,9 @@ class SimpleCacheOfflineTests(TestCase):
                    MEMCACHED_TIMEOUT=3,
                    MEMCACHED_NOREPLY=False)
 @skipUnless(os.getenv("LIVE_TESTS"), "Set LIVE_TESTS=1 to run tests")
-class SimpleCacheLiveTests(TestCase):
+class PymemcacheCacheLiveTests(TestCase):
     def setUp(self):
-        self.client = SimpleClient()
+        self.client = PymemcacheClient()
         self.client.flush_all()
 
     def test_settings(self):
@@ -37,7 +37,7 @@ class SimpleCacheLiveTests(TestCase):
         self.assertEqual(client.default_kwargs.get("timeout"), 3)
         self.assertEqual(client.default_kwargs.get("default_noreply"), False)
 
-    def test_simple_set_get(self):
+    def test_client(self):
         key = "abc"
 
         reply = self.client.set(key, 12345)
