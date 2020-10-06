@@ -16,3 +16,14 @@ script:
 - LIVE_TESTS=1 coverage run memcached_clients/test.py -v
 after_script:
 - coveralls
+before_deploy:
+- find memcached_clients/ -name \*.pyc -exec rm {} \;
+- echo $TRAVIS_TAG > memcached_clients/VERSION
+deploy:
+  provider:
+  user:
+  skip_cleanup: true
+  password:
+  on:
+    tags: true
+    python: '3.6'

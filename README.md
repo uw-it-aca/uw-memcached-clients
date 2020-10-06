@@ -19,6 +19,7 @@ To use this client, you'll need these settings in your application or script:
 
 Optional settings:
 
+    MEMCACHED_USE_POOLING=True
     MEMCACHED_MAX_POOL_SIZE=10
     MEMCACHE_CONNECT_TIMEOUT=2
     MEMCACHED_TIMEOUT=2
