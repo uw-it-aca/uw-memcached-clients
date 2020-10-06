@@ -1,6 +1,9 @@
-from memcached_clients import PymemcacheClient
+from memcached_clients import PymemcacheClient, MemcacheError
 from commonconf import settings
 from hashlib import sha1
+from logging import getLogger
+
+logger = getLogger(__name__)
 
 
 class CachedHTTPResponse():
@@ -38,7 +41,11 @@ class RestclientPymemcacheClient(PymemcacheClient):
         if expire is not None:
             key = self._create_key(service, url)
             data = self._format_data(response)
-            return self.set(key, data, expire=expire)
+            try:
+                # Bypass the shim client to log the original URL if needed.
+                return self.client.set(key, data, expire=expire)
+            except MemcacheError as ex:
+                logger.error("memcached {}: {}, url: {}".format(name, ex, url))
 
     processResponse = updateCache
 
