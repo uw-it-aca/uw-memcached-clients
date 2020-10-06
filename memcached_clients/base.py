@@ -17,7 +17,8 @@ class PymemcacheClient():
 
     def __getattr__(self, name, *args, **kwargs):
         """
-        Pass method calls through to the client, and add logging for errors.
+        Pass unshimmed method calls through to the client, and add logging
+        for errors.
         """
         def handler(*args, **kwargs):
             try:
