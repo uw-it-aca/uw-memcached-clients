@@ -1,21 +1,19 @@
-from memcached_clients import SimpleClient
 from django.core.cache.backends.memcached import BaseMemcachedCache
+from pymemcache import HashClient
+from pymemcache import serde
 
 
-class SimpleCacheBackend(BaseMemcachedCache):
+class PymemcacheCache(BaseMemcachedCache):
     """
-    Implemetation of a memcached binding for Django.
+    Implementation of a pymemcache binding for Django.
     """
     def __init__(self, server, params):
-        super().__init__(server, params, library=SimpleClient,
-                         value_not_found_exception=ValueError)
-
-    @cached_property
-    def _cache(self):
-        if getattr(self, '_client', None) is None:
-            self._options["default_noreply"] = False
-            self._client = SimpleClient(**self._options)
-        return self._client
-
-    def close(self, **kwargs):
-        pass
+        self._local = local()
+        super().__init__(server, params, library=pymemcache,
+                         value_not_found_exception=KeyError)
+        self._class = self._lib.HashClient
+        self._options.update({
+            "allow_unicode_keys": True,
+            "default_noreply": False,
+            "serde": serde.pickle_serde,
+        })
