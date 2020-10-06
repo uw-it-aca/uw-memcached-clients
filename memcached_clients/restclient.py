@@ -52,7 +52,7 @@ class RestclientPymemcacheClient(PymemcacheClient):
     def get_cache_expiry(self, service, url, status=None):
         """
         Overridable method for setting the cache expiry per service, url,
-        and status.  Valid return values are:
+        and response status.  Valid return values are:
           * Number of seconds until the item is expired from the cache,
           * Zero, for no expiry,
           * None, indicating that the item should not be cached.
