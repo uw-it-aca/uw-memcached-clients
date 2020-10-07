@@ -1,21 +1,26 @@
 from django.core.cache.backends.memcached import BaseMemcachedCache
-from pymemcache import HashClient
-from pymemcache import serde
 
 
 class PymemcacheCache(BaseMemcachedCache):
     """
-    Implementation of a pymemcache binding for Django.
+    Implementation of a pymemcache binding for Django 2.x.
     """
     def __init__(self, server, params):
+        import pymemcache
         super().__init__(server, params, library=pymemcache,
                          value_not_found_exception=KeyError)
-        self._class = self._lib.HashClient
-        self._options.update({
-            "allow_unicode_keys": True,
-            "default_noreply": False,
-            "serde": serde.pickle_serde,
-        })
+
+    @property
+    def _cache(self):
+        if getattr(self, "_client", None) is None:
+            kwargs = {
+                "allow_unicode_keys": True,
+                "default_noreply": False,
+                "serde": self._lib.serde.pickle_serde,
+            }
+            kwargs.update(self._options)
+            self._client = self._lib.HashClient(self._servers, **kwargs)
+        return self._client
 
     def close(self, **kwargs):
         # Don't call disconnect_all() if connection pooling is enabled,
