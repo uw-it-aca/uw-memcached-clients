@@ -51,7 +51,7 @@ class CachePolicyTests(TestCase):
     def test_get_cache_expiry(self):
         client = ClientCachePolicyTest()
         self.assertEqual(
-            client.get_cache_expiry("xyz", "/api/v1/test", 200), 0)
+            client.get_cache_expiry("xyz", "/api/v1/test"), 0)
 
         self.assertEqual(
             client.get_cache_expiry("abc", "/api/v1/test", 200), 60)
