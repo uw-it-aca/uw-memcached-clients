@@ -45,7 +45,7 @@ class RestclientPymemcacheClient(PymemcacheClient):
                 # Bypass the shim client to log the original URL if needed.
                 self.client.set(key, data, expire=expire)
             except MemcacheError as ex:
-                logger.error("memcached {}: {}, url: {}".format(name, ex, url))
+                logger.error("memcached set: {}, url: {}".format(ex, url))
 
     processResponse = updateCache
 
