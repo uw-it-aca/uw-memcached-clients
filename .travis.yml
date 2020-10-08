@@ -4,8 +4,13 @@ python:
 - '3.6'
 services:
 - memcached
+env:
+  matrix:
+  - DJANGO=2.1
+  - DJANGO=2.2
 before_script:
 - pip install -e .
+- pip install -q Django==$DJANGO
 - pip install pycodestyle
 - pip install nose2
 - pip install coverage
@@ -13,7 +18,7 @@ before_script:
 - pip install coveralls
 script:
 - pycodestyle memcached_clients/
-- LIVE_TESTS=1 coverage run memcached_clients/test.py -v
+- LIVE_TESTS=1 DJANGO_TESTS=1 coverage run memcached_clients/test.py -v
 after_script:
 - coveralls
 before_deploy:
