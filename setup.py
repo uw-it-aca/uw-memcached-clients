@@ -25,6 +25,7 @@ setup(
     install_requires=[
         'pymemcache>=3.4.0',
         'commonconf>=1.0',
+        'mock',
     ],
     license='Apache License, Version 2.0',
     description=('Memcached clients'),
