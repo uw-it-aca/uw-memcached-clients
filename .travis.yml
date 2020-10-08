@@ -10,6 +10,7 @@ env:
   - DJANGO=2.2
 before_script:
 - pip install -e .
+- pip install -q Django==$DJANGO
 - pip install pycodestyle
 - pip install nose2
 - pip install coverage
