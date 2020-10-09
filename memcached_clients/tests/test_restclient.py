@@ -6,7 +6,7 @@ import os
 
 
 class ClientCachePolicyTest(RestclientPymemcacheClient):
-    def get_cache_expiry(self, service, url, status=None):
+    def get_cache_expiration_time(self, service, url, status=None):
         if service == "abc":
             if status == 404:
                 return None
@@ -15,7 +15,7 @@ class ClientCachePolicyTest(RestclientPymemcacheClient):
 
 
 class ClientCachePolicyNone(RestclientPymemcacheClient):
-    def get_cache_expiry(self, service, url, status=None):
+    def get_cache_expiration_time(self, service, url, status=None):
         return None
 
 
@@ -48,22 +48,22 @@ class CachedHTTPResponseTests(TestCase):
 
 
 class CachePolicyTests(TestCase):
-    def test_get_cache_expiry(self):
+    def test_get_cache_expiration_time(self):
         client = ClientCachePolicyTest()
         self.assertEqual(
-            client.get_cache_expiry("xyz", "/api/v1/test"), 0)
+            client.get_cache_expiration_time("xyz", "/api/v1/test"), 0)
 
         self.assertEqual(
-            client.get_cache_expiry("abc", "/api/v1/test", 200), 60)
+            client.get_cache_expiration_time("abc", "/api/v1/test", 200), 60)
 
         self.assertEqual(
-            client.get_cache_expiry("abc", "/api/v1/test", 404), None)
+            client.get_cache_expiration_time("abc", "/api/v1/test", 404), None)
 
     @override_settings(RESTCLIENTS_MEMCACHED_DEFAULT_EXPIRY=3600)
-    def test_defaullt_cache_expiry(self):
+    def test_default_cache_expiration_time(self):
         client = RestclientPymemcacheClient()
         self.assertEqual(
-            client.get_cache_expiry("abc", "/api/v1/test", 200), 3600)
+            client.get_cache_expiration_time("abc", "/api/v1/test", 200), 3600)
 
 
 class RestclientPymemcacheClientOfflineTests(TestCase):
