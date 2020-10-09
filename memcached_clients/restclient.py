@@ -27,7 +27,7 @@ class CachedHTTPResponse():
 
 class RestclientPymemcacheClient(PymemcacheClient):
     def getCache(self, service, url, headers=None):
-        expire = self.get_cache_expiry(service, url)
+        expire = self.get_cache_expiration_time(service, url)
         if expire is not None:
             data = self.get(self._create_key(service, url))
             if data:
@@ -37,7 +37,7 @@ class RestclientPymemcacheClient(PymemcacheClient):
         return self.delete(self._create_key(service, url))
 
     def updateCache(self, service, url, response):
-        expire = self.get_cache_expiry(service, url, response.status)
+        expire = self.get_cache_expiration_time(service, url, response.status)
         if expire is not None:
             key = self._create_key(service, url)
             data = self._format_data(response)
@@ -49,17 +49,15 @@ class RestclientPymemcacheClient(PymemcacheClient):
 
     processResponse = updateCache
 
-    def get_cache_expiry(self, service, url, status=None):
+    def get_cache_expiration_time(self, service, url, status=None):
         """
-        Overridable method for setting the cache expiry per service, url,
+        Overridable method for setting the cache expiration per service, url,
         and response status.  Valid return values are:
           * Number of seconds until the item is expired from the cache,
           * Zero, for no expiry,
           * None, indicating that the item should not be cached.
         """
         return getattr(settings, "RESTCLIENTS_MEMCACHED_DEFAULT_EXPIRY", 300)
-
-    get_cache_expiration_time = get_cache_expiry
 
     @staticmethod
     def _create_key(service, url):
