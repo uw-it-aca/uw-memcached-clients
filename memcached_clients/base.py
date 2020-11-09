@@ -4,6 +4,7 @@ from pymemcache import serde
 from commonconf import settings
 from threading import local
 from logging import getLogger
+import socket
 
 logger = getLogger(__name__)
 
@@ -23,7 +24,7 @@ class PymemcacheClient():
         def handler(*args, **kwargs):
             try:
                 return getattr(self.client, name)(*args, **kwargs)
-            except MemcacheError as ex:
+            except (MemcacheError, socket.gaierror) as ex:
                 logger.error("memcached {}: {}".format(name, ex))
             except AttributeError:
                 raise
