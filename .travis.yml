@@ -24,7 +24,6 @@ after_script:
 before_deploy:
 - find memcached_clients/ -name \*.pyc -exec rm {} \;
 - echo $TRAVIS_TAG > memcached_clients/VERSION
-- pip install importlib-metadata>=1
 deploy:
   provider: pypi
   user: uw-it-aca
