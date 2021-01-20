@@ -67,6 +67,9 @@ jobs:
       - name: Upgrade Django Version
         run: pip install "Django~=${{ matrix.django-version }}.0"
 
+      - name: Start Memcached
+        run: docker run -d -p 11211:11211 memcached:alpine
+
       - name: Run Pycodestyle
         run: pycodestyle ${APP_NAME}/
 
