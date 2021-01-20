@@ -70,9 +70,6 @@ jobs:
       - name: Run Pycodestyle
         run: pycodestyle ${APP_NAME}/
 
-      - name: Run Migrations
-        run: python manage.py migrate
-
       - name: Run Tests
         env:
           LIVE_TESTS: 1
