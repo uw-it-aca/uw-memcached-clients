@@ -74,7 +74,7 @@ jobs:
         run: pip install "Django~=${{ matrix.django-version }}.0"
 
       - name: Start Memcached
-        run: docker run -d -p 11211:11211 memcached:alpine
+        run: docker run -d -p 11211:11211 memcached:1.5.21
 
       - name: Run Tests
         env:
