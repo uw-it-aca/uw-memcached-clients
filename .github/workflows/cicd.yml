@@ -59,6 +59,11 @@ jobs:
         with:
           python-version: 3.6
 
+      - name: Run Python Linters
+        uses: uw-it-aca/actions/python-linters@main
+        with:
+          app_name: ${APP_NAME}
+
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
@@ -70,11 +75,6 @@ jobs:
 
       - name: Start Memcached
         run: docker run -d -p 11211:11211 memcached:alpine
-
-      - name: Run Python Linters
-        uses: uw-it-aca/actions/python-linters@main
-        with:
-          app_name: ${APP_NAME}
 
       - name: Run Tests
         env:
