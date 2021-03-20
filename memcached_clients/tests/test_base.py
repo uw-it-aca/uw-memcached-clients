@@ -11,8 +11,6 @@ import os
 class PymemcacheCacheOfflineTests(TestCase):
     def setUp(self):
         self.client = PymemcacheClient()
-
-    def tearDown(self):
         try:
             del self.client._local.client
         except AttributeError:
@@ -37,13 +35,11 @@ class PymemcacheCacheOfflineTests(TestCase):
 class PymemcacheCacheLiveTests(TestCase):
     def setUp(self):
         self.client = PymemcacheClient()
-        self.client.flush_all()
-
-    def tearDown(self):
         try:
             del self.client._local.client
         except AttributeError:
             pass
+        self.client.flush_all()
 
     def test_settings(self):
         client = self.client.client
