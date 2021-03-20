@@ -8,13 +8,14 @@ from pymemcache.exceptions import MemcacheError
 import os
 
 
+class MockLocal():
+    pass
+
+
 class PymemcacheCacheOfflineTests(TestCase):
     def setUp(self):
         self.client = PymemcacheClient()
-        try:
-            del self.client._local.client
-        except AttributeError:
-            pass
+        self.client._local = MockLocal()
 
     def test_invalid_method(self):
         self.assertRaises(AttributeError, self.client.fake)
@@ -35,10 +36,7 @@ class PymemcacheCacheOfflineTests(TestCase):
 class PymemcacheCacheLiveTests(TestCase):
     def setUp(self):
         self.client = PymemcacheClient()
-        try:
-            del self.client._local.client
-        except AttributeError:
-            pass
+        self.client._local = MockLocal()
         self.client.flush_all()
 
     def test_settings(self):
