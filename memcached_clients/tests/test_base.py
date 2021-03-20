@@ -13,7 +13,10 @@ class PymemcacheCacheOfflineTests(TestCase):
         self.client = PymemcacheClient()
 
     def tearDown(self):
-        del self.client._local.client
+        try:
+            del self.client._local.client
+        except AttributeError:
+            pass
 
     def test_invalid_method(self):
         self.assertRaises(AttributeError, self.client.fake)
@@ -37,7 +40,10 @@ class PymemcacheCacheLiveTests(TestCase):
         self.client.flush_all()
 
     def tearDown(self):
-        del self.client._local.client
+        try:
+            del self.client._local.client
+        except AttributeError:
+            pass
 
     def test_settings(self):
         client = self.client.client

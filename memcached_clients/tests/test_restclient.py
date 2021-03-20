@@ -52,7 +52,10 @@ class CachedHTTPResponseTests(TestCase):
 
 class CachePolicyTests(TestCase):
     def tearDown(self):
-        del self.client._local.client
+        try:
+            del self.client._local.client
+        except AttributeError:
+            pass
 
     def test_get_cache_expiration_time(self):
         self.client = ClientCachePolicyTest()
@@ -80,7 +83,10 @@ class RestclientPymemcacheClientOfflineTests(TestCase):
         self.client = RestclientPymemcacheClient()
 
     def tearDown(self):
-        del self.client._local.client
+        try:
+            del self.client._local.client
+        except AttributeError:
+            pass
 
     def test_create_key(self):
         self.assertEqual(self.client._create_key("abc", "/api/v1/test"),
@@ -115,7 +121,10 @@ class RestclientPymemcacheClientLiveTests(TestCase):
         self.client.flush_all()
 
     def tearDown(self):
-        del self.client._local.client
+        try:
+            del self.client._local.client
+        except AttributeError:
+            pass
 
     def test_getCache(self):
         response = self.client.getCache("abc", "/api/v1/test")
