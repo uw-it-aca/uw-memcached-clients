@@ -22,7 +22,7 @@ setup(
     author_email="aca-it@uw.edu",
     include_package_data=True,
     install_requires=[
-        'pymemcache==3.4.0',
+        'pymemcache>=3.4.0',
         'commonconf~=1.0',
         'mock',
     ],
