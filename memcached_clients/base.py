@@ -17,7 +17,9 @@ class PymemcacheClient():
     A settings-based wrapper around pymemcache.
     """
     def __init__(self):
-        self._local = local()
+        self.cached_client = getattr(settings, "MEMCACHED_CACHED_CLIENT", True)
+        if self.cached_client:
+            self._local = local()
 
     def __getattr__(self, name, *args, **kwargs):
         """
@@ -35,7 +37,7 @@ class PymemcacheClient():
 
     @property
     def client(self):
-        if hasattr(self._local, "client"):
+        if self.cached_client and hasattr(self._local, "client"):
             return self._local.client
 
         client = HashClient(
@@ -47,5 +49,6 @@ class PymemcacheClient():
             default_noreply=getattr(settings, "MEMCACHED_NOREPLY", True),
             serde=serde.pickle_serde)
 
-        self._local.client = client
+        if self.cached_client:
+            self._local.client = client
         return client

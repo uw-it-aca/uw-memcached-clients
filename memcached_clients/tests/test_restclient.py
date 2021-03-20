@@ -8,10 +8,6 @@ from memcached_clients.restclient import (
 import os
 
 
-class MockLocal():
-    pass
-
-
 class ClientCachePolicyTest(RestclientPymemcacheClient):
     def get_cache_expiration_time(self, service, url, status=None):
         if service == "abc":
@@ -54,6 +50,7 @@ class CachedHTTPResponseTests(TestCase):
                          "attachment; filename='name.ext'")
 
 
+@override_settings(MEMCACHED_CACHED_CLIENT=False)
 class CachePolicyTests(TestCase):
     def test_get_cache_expiration_time(self):
         self.client = ClientCachePolicyTest()
@@ -76,10 +73,10 @@ class CachePolicyTests(TestCase):
                 "abc", "/api/v1/test", 200), 3600)
 
 
+@override_settings(MEMCACHED_CACHED_CLIENT=False)
 class RestclientPymemcacheClientOfflineTests(TestCase):
     def setUp(self):
         self.client = RestclientPymemcacheClient()
-        self.client._local = MockLocal()
 
     def test_create_key(self):
         self.assertEqual(self.client._create_key("abc", "/api/v1/test"),
@@ -103,7 +100,8 @@ class RestclientPymemcacheClientOfflineTests(TestCase):
 
 
 @override_settings(MEMCACHED_SERVERS=["localhost:11211"],
-                   MEMCACHED_NOREPLY=False)
+                   MEMCACHED_NOREPLY=False,
+                   MEMCACHED_CACHED_CLIENT=False)
 @skipUnless(os.getenv("LIVE_TESTS"), "Set LIVE_TESTS=1 to run tests")
 class RestclientPymemcacheClientLiveTests(TestCase):
     def setUp(self):
@@ -111,7 +109,6 @@ class RestclientPymemcacheClientLiveTests(TestCase):
             headers={}, status=200, data={"test": 12345})
 
         self.client = RestclientPymemcacheClient()
-        self.client._local = MockLocal()
         self.client.flush_all()
 
     def test_getCache(self):

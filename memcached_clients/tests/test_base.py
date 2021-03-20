@@ -8,14 +8,10 @@ from pymemcache.exceptions import MemcacheError
 import os
 
 
-class MockLocal():
-    pass
-
-
+@override_settings(MEMCACHED_CACHED_CLIENT=False)
 class PymemcacheCacheOfflineTests(TestCase):
     def setUp(self):
         self.client = PymemcacheClient()
-        self.client._local = MockLocal()
 
     def test_invalid_method(self):
         self.assertRaises(AttributeError, self.client.fake)
@@ -31,12 +27,12 @@ class PymemcacheCacheOfflineTests(TestCase):
 @override_settings(MEMCACHED_SERVERS=[("localhost", "11211")],
                    MEMCACHED_MAX_POOL_SIZE=5,
                    MEMCACHED_TIMEOUT=3,
-                   MEMCACHED_NOREPLY=False)
+                   MEMCACHED_NOREPLY=False,
+                   MEMCACHED_CACHED_CLIENT=False)
 @skipUnless(os.getenv("LIVE_TESTS"), "Set LIVE_TESTS=1 to run tests")
 class PymemcacheCacheLiveTests(TestCase):
     def setUp(self):
         self.client = PymemcacheClient()
-        self.client._local = MockLocal()
         self.client.flush_all()
 
     def test_settings(self):
