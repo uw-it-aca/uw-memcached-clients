@@ -27,7 +27,7 @@ class PymemcacheCacheOfflineTests(TestCase):
     def test_local_client_cache(self):
         PymemcacheClient.CACHE_CLIENT = True
         client = PymemcacheClient()
-        self.assertIsInstance(client._locals.client, HashClient)
+        self.assertIsInstance(client._local.client, HashClient)
 
 
 @override_settings(MEMCACHED_SERVERS=[("127.0.0.1", "11211")],
