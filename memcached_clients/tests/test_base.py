@@ -3,12 +3,11 @@
 
 from unittest import TestCase, skipUnless
 from commonconf import settings, override_settings
-from memcached_clients import PymemcacheClient
+from memcached_clients.tests import TestPymemcacheClient as PymemcacheClient
 from pymemcache.exceptions import MemcacheError
 import os
 
 
-@override_settings(MEMCACHED_CACHED_CLIENT=False)
 class PymemcacheCacheOfflineTests(TestCase):
     def setUp(self):
         self.client = PymemcacheClient()
@@ -27,8 +26,7 @@ class PymemcacheCacheOfflineTests(TestCase):
 @override_settings(MEMCACHED_SERVERS=[("localhost", "11211")],
                    MEMCACHED_MAX_POOL_SIZE=5,
                    MEMCACHED_TIMEOUT=3,
-                   MEMCACHED_NOREPLY=False,
-                   MEMCACHED_CACHED_CLIENT=False)
+                   MEMCACHED_NOREPLY=False)
 @skipUnless(os.getenv("LIVE_TESTS"), "Set LIVE_TESTS=1 to run tests")
 class PymemcacheCacheLiveTests(TestCase):
     def setUp(self):

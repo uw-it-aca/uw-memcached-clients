@@ -3,8 +3,9 @@
 
 from unittest import TestCase, skipUnless
 from commonconf import settings, override_settings
-from memcached_clients.restclient import (
-    RestclientPymemcacheClient, CachedHTTPResponse)
+from memcached_clients.restclient import CachedHTTPResponse
+from memcached_clients.tests import (
+    TestRestclientPymemcacheClient as RestclientPymemcacheClient)
 import os
 
 
@@ -50,7 +51,6 @@ class CachedHTTPResponseTests(TestCase):
                          "attachment; filename='name.ext'")
 
 
-@override_settings(MEMCACHED_CACHED_CLIENT=False)
 class CachePolicyTests(TestCase):
     def test_get_cache_expiration_time(self):
         self.client = ClientCachePolicyTest()
@@ -73,7 +73,6 @@ class CachePolicyTests(TestCase):
                 "abc", "/api/v1/test", 200), 3600)
 
 
-@override_settings(MEMCACHED_CACHED_CLIENT=False)
 class RestclientPymemcacheClientOfflineTests(TestCase):
     def setUp(self):
         self.client = RestclientPymemcacheClient()
@@ -100,8 +99,7 @@ class RestclientPymemcacheClientOfflineTests(TestCase):
 
 
 @override_settings(MEMCACHED_SERVERS=["localhost:11211"],
-                   MEMCACHED_NOREPLY=False,
-                   MEMCACHED_CACHED_CLIENT=False)
+                   MEMCACHED_NOREPLY=False)
 @skipUnless(os.getenv("LIVE_TESTS"), "Set LIVE_TESTS=1 to run tests")
 class RestclientPymemcacheClientLiveTests(TestCase):
     def setUp(self):

@@ -17,9 +17,7 @@ class PymemcacheClient():
     A settings-based wrapper around pymemcache.
     """
     def __init__(self):
-        self.cached_client = getattr(settings, "MEMCACHED_CACHED_CLIENT", True)
-        if self.cached_client:
-            self._local = local()
+        self._local = local()
 
     def __getattr__(self, name, *args, **kwargs):
         """
@@ -37,10 +35,12 @@ class PymemcacheClient():
 
     @property
     def client(self):
-        if self.cached_client and hasattr(self._local, "client"):
-            return self._local.client
+        if not hasattr(self._local, "client"):
+            self._local.client = self.__client__()
+        return self._local.client
 
-        client = HashClient(
+    def __client__(self):
+        return HashClient(
             getattr(settings, "MEMCACHED_SERVERS", []),
             use_pooling=getattr(settings, "MEMCACHED_USE_POOLING", True),
             max_pool_size=getattr(settings, "MEMCACHED_MAX_POOL_SIZE", 10),
@@ -48,7 +48,3 @@ class PymemcacheClient():
             timeout=getattr(settings, "MEMCACHED_TIMEOUT", 2),
             default_noreply=getattr(settings, "MEMCACHED_NOREPLY", True),
             serde=serde.pickle_serde)
-
-        if self.cached_client:
-            self._local.client = client
-        return client
