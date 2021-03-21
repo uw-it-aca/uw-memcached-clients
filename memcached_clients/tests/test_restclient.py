@@ -3,8 +3,8 @@
 
 from unittest import TestCase, skipUnless
 from commonconf import settings, override_settings
-from memcached_clients.restclient import (
-    RestclientPymemcacheClient, CachedHTTPResponse)
+from memcached_clients import PymemcacheClient, RestclientPymemcacheClient
+from memcached_clients.restclient import CachedHTTPResponse
 import os
 
 
@@ -51,6 +51,9 @@ class CachedHTTPResponseTests(TestCase):
 
 
 class CachePolicyTests(TestCase):
+    def setUp(self):
+        PymemcacheClient.CACHE_CLIENT = False
+
     def test_get_cache_expiration_time(self):
         self.client = ClientCachePolicyTest()
         self.assertEqual(
@@ -74,11 +77,8 @@ class CachePolicyTests(TestCase):
 
 class RestclientPymemcacheClientOfflineTests(TestCase):
     def setUp(self):
+        PymemcacheClient.CACHE_CLIENT = False
         self.client = RestclientPymemcacheClient()
-        try:
-            del self.client._locals.client
-        except AttributeError:
-            pass
 
     def test_create_key(self):
         self.assertEqual(self.client._create_key("abc", "/api/v1/test"),
@@ -101,19 +101,16 @@ class RestclientPymemcacheClientOfflineTests(TestCase):
         })
 
 
-@override_settings(MEMCACHED_SERVERS=["localhost:11211"],
+@override_settings(MEMCACHED_SERVERS=["127.0.0.1:11211"],
                    MEMCACHED_NOREPLY=False)
 @skipUnless(os.getenv("LIVE_TESTS"), "Set LIVE_TESTS=1 to run tests")
 class RestclientPymemcacheClientLiveTests(TestCase):
     def setUp(self):
+        PymemcacheClient.CACHE_CLIENT = False
         self.test_response = CachedHTTPResponse(
             headers={}, status=200, data={"test": 12345})
 
         self.client = RestclientPymemcacheClient()
-        try:
-            del self.client._locals.client
-        except AttributeError:
-            pass
         self.client.flush_all()
 
     def test_getCache(self):

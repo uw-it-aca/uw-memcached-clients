@@ -10,11 +10,8 @@ import os
 
 class PymemcacheCacheOfflineTests(TestCase):
     def setUp(self):
+        PymemcacheClient.CACHE_CLIENT = False
         self.client = PymemcacheClient()
-        try:
-            del self.client._locals.client
-        except AttributeError:
-            pass
 
     def test_invalid_method(self):
         self.assertRaises(AttributeError, self.client.fake)
@@ -27,18 +24,15 @@ class PymemcacheCacheOfflineTests(TestCase):
         self.assertEqual(client.default_kwargs.get("default_noreply"), True)
 
 
-@override_settings(MEMCACHED_SERVERS=[("localhost", "11211")],
+@override_settings(MEMCACHED_SERVERS=[("127.0.0.1", "11211")],
                    MEMCACHED_MAX_POOL_SIZE=5,
                    MEMCACHED_TIMEOUT=3,
                    MEMCACHED_NOREPLY=False)
 @skipUnless(os.getenv("LIVE_TESTS"), "Set LIVE_TESTS=1 to run tests")
 class PymemcacheCacheLiveTests(TestCase):
     def setUp(self):
+        PymemcacheClient.CACHE_CLIENT = False
         self.client = PymemcacheClient()
-        try:
-            del self.client._locals.client
-        except AttributeError:
-            pass
         self.client.flush_all()
 
     def test_settings(self):
