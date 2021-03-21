@@ -3,7 +3,7 @@
 
 from unittest import TestCase, skipUnless
 from commonconf import settings, override_settings
-from memcached_clients.tests import TestPymemcacheClient as PymemcacheClient
+from memcached_clients import PymemcacheClient
 from pymemcache.exceptions import MemcacheError
 import os
 
@@ -11,12 +11,16 @@ import os
 class PymemcacheCacheOfflineTests(TestCase):
     def setUp(self):
         self.client = PymemcacheClient()
+        try:
+            del self.client._locals.client
+        except AttributeError:
+            pass
 
     def test_invalid_method(self):
         self.assertRaises(AttributeError, self.client.fake)
 
     def test_default_settings(self):
-        client = self.client.__client__()
+        client = self.client.client
         self.assertEqual(client.default_kwargs.get("max_pool_size"), 10)
         self.assertEqual(client.default_kwargs.get("connect_timeout"), 2)
         self.assertEqual(client.default_kwargs.get("timeout"), 2)
@@ -31,10 +35,14 @@ class PymemcacheCacheOfflineTests(TestCase):
 class PymemcacheCacheLiveTests(TestCase):
     def setUp(self):
         self.client = PymemcacheClient()
+        try:
+            del self.client._locals.client
+        except AttributeError:
+            pass
         self.client.flush_all()
 
     def test_settings(self):
-        client = self.client.client
+        client = self.client.__client__()
         self.assertEqual(client.default_kwargs.get("max_pool_size"), 5)
         self.assertEqual(client.default_kwargs.get("connect_timeout"), 2)
         self.assertEqual(client.default_kwargs.get("timeout"), 3)

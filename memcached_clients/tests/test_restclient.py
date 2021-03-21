@@ -3,9 +3,8 @@
 
 from unittest import TestCase, skipUnless
 from commonconf import settings, override_settings
-from memcached_clients.restclient import CachedHTTPResponse
-from memcached_clients.tests import (
-    TestRestclientPymemcacheClient as RestclientPymemcacheClient)
+from memcached_clients.restclient import (
+    RestclientPymemcacheClient, CachedHTTPResponse)
 import os
 
 
@@ -76,6 +75,10 @@ class CachePolicyTests(TestCase):
 class RestclientPymemcacheClientOfflineTests(TestCase):
     def setUp(self):
         self.client = RestclientPymemcacheClient()
+        try:
+            del self.client._locals.client
+        except AttributeError:
+            pass
 
     def test_create_key(self):
         self.assertEqual(self.client._create_key("abc", "/api/v1/test"),
@@ -107,6 +110,10 @@ class RestclientPymemcacheClientLiveTests(TestCase):
             headers={}, status=200, data={"test": 12345})
 
         self.client = RestclientPymemcacheClient()
+        try:
+            del self.client._locals.client
+        except AttributeError:
+            pass
         self.client.flush_all()
 
     def test_getCache(self):
