@@ -5,6 +5,7 @@ from unittest import TestCase, skipUnless
 from commonconf import settings, override_settings
 from memcached_clients import PymemcacheClient
 from pymemcache.exceptions import MemcacheError
+from pymemcache import HashClient
 import os
 
 
@@ -22,6 +23,11 @@ class PymemcacheCacheOfflineTests(TestCase):
         self.assertEqual(client.default_kwargs.get("connect_timeout"), 2)
         self.assertEqual(client.default_kwargs.get("timeout"), 2)
         self.assertEqual(client.default_kwargs.get("default_noreply"), True)
+
+    def test_local_client_cache(self):
+        PymemcacheClient.CACHE_CLIENT = True
+        client = PymemcacheClient()
+        self.assertIsInstance(client._locals.client, HashClient)
 
 
 @override_settings(MEMCACHED_SERVERS=[("127.0.0.1", "11211")],
