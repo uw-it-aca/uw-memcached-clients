@@ -24,9 +24,17 @@ class PymemcacheCacheOfflineTests(TestCase):
         self.assertEqual(client.default_kwargs.get("timeout"), 2)
         self.assertEqual(client.default_kwargs.get("default_noreply"), True)
 
+
+class PymemcacheCacheThreadCacheTests(TestCase):
     def test_local_client_cache(self):
         PymemcacheClient.CACHE_CLIENT = True
         client = PymemcacheClient()
+
+        # Client not yet added to locals
+        self.assertRaises(AttributeError, client._local.client)
+        # Trigger client load and cache
+        self.assertEqual(client.default_kwargs.get("max_pool_size"), 10)
+        # Client now cached in locals
         self.assertIsInstance(client._local.client, HashClient)
 
 
