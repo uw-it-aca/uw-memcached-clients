@@ -16,7 +16,7 @@ class PymemcacheCacheOfflineTests(TestCase):
         self.assertRaises(AttributeError, self.client.fake)
 
     def test_default_settings(self):
-        client = self.client.client
+        client = self.client.__client__()
         self.assertEqual(client.default_kwargs.get("max_pool_size"), 10)
         self.assertEqual(client.default_kwargs.get("connect_timeout"), 2)
         self.assertEqual(client.default_kwargs.get("timeout"), 2)
