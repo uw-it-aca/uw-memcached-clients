@@ -1,3 +1,6 @@
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
 from unittest import TestCase, skipUnless
 from commonconf import settings, override_settings
 from memcached_clients import PymemcacheClient
@@ -20,7 +23,7 @@ class PymemcacheCacheOfflineTests(TestCase):
         self.assertEqual(client.default_kwargs.get("default_noreply"), True)
 
 
-@override_settings(MEMCACHED_SERVERS=[("localhost", "11211")],
+@override_settings(MEMCACHED_SERVERS=[("127.0.0.1", "11211")],
                    MEMCACHED_MAX_POOL_SIZE=5,
                    MEMCACHED_TIMEOUT=3,
                    MEMCACHED_NOREPLY=False)

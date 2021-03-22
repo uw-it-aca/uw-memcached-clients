@@ -1,3 +1,6 @@
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
 from pymemcache.exceptions import MemcacheError
 from pymemcache import HashClient
 from pymemcache import serde
@@ -32,10 +35,12 @@ class PymemcacheClient():
 
     @property
     def client(self):
-        if hasattr(self._local, "client"):
-            return self._local.client
+        if not hasattr(self._local, "client"):
+            self._local.client = self.__client__()
+        return self._local.client
 
-        client = HashClient(
+    def __client__(self):
+        return HashClient(
             getattr(settings, "MEMCACHED_SERVERS", []),
             use_pooling=getattr(settings, "MEMCACHED_USE_POOLING", True),
             max_pool_size=getattr(settings, "MEMCACHED_MAX_POOL_SIZE", 10),
@@ -43,6 +48,3 @@ class PymemcacheClient():
             timeout=getattr(settings, "MEMCACHED_TIMEOUT", 2),
             default_noreply=getattr(settings, "MEMCACHED_NOREPLY", True),
             serde=serde.pickle_serde)
-
-        self._local.client = client
-        return client
