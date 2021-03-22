@@ -16,11 +16,11 @@ class PymemcacheCacheOfflineTests(TestCase):
         self.assertRaises(AttributeError, self.client.fake)
 
     def test_default_settings(self):
-        self.assertEqual(self.client.default_kwargs.get("max_pool_size"), 10)
-        self.assertEqual(self.client.default_kwargs.get("connect_timeout"), 2)
-        self.assertEqual(self.client.default_kwargs.get("timeout"), 2)
-        self.assertEqual(self.client.default_kwargs.get(
-            "default_noreply"), True)
+        client = self.client.client
+        self.assertEqual(client.default_kwargs.get("max_pool_size"), 10)
+        self.assertEqual(client.default_kwargs.get("connect_timeout"), 2)
+        self.assertEqual(client.default_kwargs.get("timeout"), 2)
+        self.assertEqual(client.default_kwargs.get("default_noreply"), True)
 
 
 @override_settings(MEMCACHED_SERVERS=[("127.0.0.1", "11211")],
@@ -34,11 +34,11 @@ class PymemcacheCacheLiveTests(TestCase):
         self.client.flush_all()
 
     def test_settings(self):
-        self.assertEqual(self.client.default_kwargs.get("max_pool_size"), 5)
-        self.assertEqual(self.client.default_kwargs.get("connect_timeout"), 2)
-        self.assertEqual(self.client.default_kwargs.get("timeout"), 3)
-        self.assertEqual(self.client.default_kwargs.get(
-            "default_noreply"), False)
+        client = self.client.client
+        self.assertEqual(client.default_kwargs.get("max_pool_size"), 5)
+        self.assertEqual(client.default_kwargs.get("connect_timeout"), 2)
+        self.assertEqual(client.default_kwargs.get("timeout"), 3)
+        self.assertEqual(client.default_kwargs.get("default_noreply"), False)
 
     def test_client(self):
         key = "abc"
