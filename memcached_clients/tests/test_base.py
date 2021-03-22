@@ -5,37 +5,22 @@ from unittest import TestCase, skipUnless
 from commonconf import settings, override_settings
 from memcached_clients import PymemcacheClient
 from pymemcache.exceptions import MemcacheError
-from pymemcache import HashClient
 import os
 
 
 class PymemcacheCacheOfflineTests(TestCase):
     def setUp(self):
-        PymemcacheClient.CACHE_CLIENT = False
         self.client = PymemcacheClient()
 
     def test_invalid_method(self):
         self.assertRaises(AttributeError, self.client.fake)
 
     def test_default_settings(self):
-        client = self.client.client
-        self.assertEqual(client.default_kwargs.get("max_pool_size"), 10)
-        self.assertEqual(client.default_kwargs.get("connect_timeout"), 2)
-        self.assertEqual(client.default_kwargs.get("timeout"), 2)
-        self.assertEqual(client.default_kwargs.get("default_noreply"), True)
-
-
-class PymemcacheCacheThreadCacheTests(TestCase):
-    def test_local_client_cache(self):
-        PymemcacheClient.CACHE_CLIENT = True
-        client = PymemcacheClient()
-
-        # Client not yet added to locals
-        self.assertRaises(AttributeError, client._local.client)
-        # Trigger client load and cache
-        self.assertEqual(client.default_kwargs.get("max_pool_size"), 10)
-        # Client now cached in locals
-        self.assertIsInstance(client._local.client, HashClient)
+        self.assertEqual(self.client.default_kwargs.get("max_pool_size"), 10)
+        self.assertEqual(self.client.default_kwargs.get("connect_timeout"), 2)
+        self.assertEqual(self.client.default_kwargs.get("timeout"), 2)
+        self.assertEqual(self.client.default_kwargs.get(
+            "default_noreply"), True)
 
 
 @override_settings(MEMCACHED_SERVERS=[("127.0.0.1", "11211")],
@@ -45,16 +30,15 @@ class PymemcacheCacheThreadCacheTests(TestCase):
 @skipUnless(os.getenv("LIVE_TESTS"), "Set LIVE_TESTS=1 to run tests")
 class PymemcacheCacheLiveTests(TestCase):
     def setUp(self):
-        PymemcacheClient.CACHE_CLIENT = False
         self.client = PymemcacheClient()
         self.client.flush_all()
 
     def test_settings(self):
-        client = self.client.__client__()
-        self.assertEqual(client.default_kwargs.get("max_pool_size"), 5)
-        self.assertEqual(client.default_kwargs.get("connect_timeout"), 2)
-        self.assertEqual(client.default_kwargs.get("timeout"), 3)
-        self.assertEqual(client.default_kwargs.get("default_noreply"), False)
+        self.assertEqual(self.client.default_kwargs.get("max_pool_size"), 5)
+        self.assertEqual(self.client.default_kwargs.get("connect_timeout"), 2)
+        self.assertEqual(self.client.default_kwargs.get("timeout"), 3)
+        self.assertEqual(self.client.default_kwargs.get(
+            "default_noreply"), False)
 
     def test_client(self):
         key = "abc"

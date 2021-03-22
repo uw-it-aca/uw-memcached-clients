@@ -51,9 +51,6 @@ class CachedHTTPResponseTests(TestCase):
 
 
 class CachePolicyTests(TestCase):
-    def setUp(self):
-        PymemcacheClient.CACHE_CLIENT = False
-
     def test_get_cache_expiration_time(self):
         self.client = ClientCachePolicyTest()
         self.assertEqual(
@@ -77,7 +74,6 @@ class CachePolicyTests(TestCase):
 
 class RestclientPymemcacheClientOfflineTests(TestCase):
     def setUp(self):
-        PymemcacheClient.CACHE_CLIENT = False
         self.client = RestclientPymemcacheClient()
 
     def test_create_key(self):
@@ -106,7 +102,6 @@ class RestclientPymemcacheClientOfflineTests(TestCase):
 @skipUnless(os.getenv("LIVE_TESTS"), "Set LIVE_TESTS=1 to run tests")
 class RestclientPymemcacheClientLiveTests(TestCase):
     def setUp(self):
-        PymemcacheClient.CACHE_CLIENT = False
         self.test_response = CachedHTTPResponse(
             headers={}, status=200, data={"test": 12345})
 
