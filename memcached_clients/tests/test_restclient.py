@@ -1,7 +1,10 @@
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
 from unittest import TestCase, skipUnless
 from commonconf import settings, override_settings
-from memcached_clients.restclient import (
-    RestclientPymemcacheClient, CachedHTTPResponse)
+from memcached_clients import PymemcacheClient, RestclientPymemcacheClient
+from memcached_clients.restclient import CachedHTTPResponse
 import os
 
 
@@ -49,31 +52,36 @@ class CachedHTTPResponseTests(TestCase):
 
 class CachePolicyTests(TestCase):
     def test_get_cache_expiration_time(self):
-        client = ClientCachePolicyTest()
+        self.client = ClientCachePolicyTest()
         self.assertEqual(
-            client.get_cache_expiration_time("xyz", "/api/v1/test"), 0)
+            self.client.get_cache_expiration_time("xyz", "/api/v1/test"), 0)
 
         self.assertEqual(
-            client.get_cache_expiration_time("abc", "/api/v1/test", 200), 60)
+            self.client.get_cache_expiration_time(
+                "abc", "/api/v1/test", 200), 60)
 
         self.assertEqual(
-            client.get_cache_expiration_time("abc", "/api/v1/test", 404), None)
+            self.client.get_cache_expiration_time(
+                "abc", "/api/v1/test", 404), None)
 
     @override_settings(RESTCLIENTS_MEMCACHED_DEFAULT_EXPIRY=3600)
     def test_default_cache_expiration_time(self):
-        client = RestclientPymemcacheClient()
+        self.client = RestclientPymemcacheClient()
         self.assertEqual(
-            client.get_cache_expiration_time("abc", "/api/v1/test", 200), 3600)
+            self.client.get_cache_expiration_time(
+                "abc", "/api/v1/test", 200), 3600)
 
 
 class RestclientPymemcacheClientOfflineTests(TestCase):
+    def setUp(self):
+        self.client = RestclientPymemcacheClient()
+
     def test_create_key(self):
-        client = RestclientPymemcacheClient()
-        self.assertEqual(client._create_key("abc", "/api/v1/test"),
+        self.assertEqual(self.client._create_key("abc", "/api/v1/test"),
                          "abc-8157d24840389b1fec9480b59d9db3bde083cfee")
 
         long_url = "/api/v1/{}".format("x" * 250)
-        self.assertEqual(client._create_key("abc", long_url),
+        self.assertEqual(self.client._create_key("abc", long_url),
                          "abc-61fdd52a3e916830259ff23198eb64a8c43f39f2")
 
     def test_format_data(self):
@@ -82,15 +90,14 @@ class RestclientPymemcacheClientOfflineTests(TestCase):
             data={"a": 1, "b": b"test", "c": []},
             headers={"Content-Disposition": "attachment; filename='fname.ext'"}
         )
-        client = RestclientPymemcacheClient()
-        self.assertEqual(client._format_data(self.test_response), {
+        self.assertEqual(self.client._format_data(self.test_response), {
             "status": self.test_response.status,
             "headers": self.test_response.headers,
             "data": self.test_response.data
         })
 
 
-@override_settings(MEMCACHED_SERVERS=["localhost:11211"],
+@override_settings(MEMCACHED_SERVERS=["127.0.0.1:11211"],
                    MEMCACHED_NOREPLY=False)
 @skipUnless(os.getenv("LIVE_TESTS"), "Set LIVE_TESTS=1 to run tests")
 class RestclientPymemcacheClientLiveTests(TestCase):
