@@ -22,8 +22,8 @@ setup(
     author_email="aca-it@uw.edu",
     include_package_data=True,
     install_requires=[
-        'pymemcache~=3.4',
-        'commonconf~=1.1',
+        'pymemcache~=3.5',
+        'commonconf',
         'mock',
     ],
     license='Apache License, Version 2.0',
