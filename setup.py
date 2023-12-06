@@ -1,3 +1,6 @@
+# Copyright 2023 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
 import os
 from setuptools import setup
 
@@ -22,7 +25,7 @@ setup(
     author_email="aca-it@uw.edu",
     include_package_data=True,
     install_requires=[
-        'pymemcache~=3.5',
+        'pymemcache~=4.0',
         'commonconf',
         'mock',
     ],
