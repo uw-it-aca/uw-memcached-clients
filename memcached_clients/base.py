@@ -27,10 +27,11 @@ class PymemcacheClient():
         def handler(*args, **kwargs):
             try:
                 return getattr(self.client, name)(*args, **kwargs)
-            except (MemcacheError, socket.gaierror) as ex:
-                logger.error("memcached {}: {}".format(name, ex))
+            except (MemcacheError, socket.gaierror, ConnectionError) as ex:
+                logger.error(f"memcached client.{name}: {ex}")
             except AttributeError:
                 raise
+
         return handler
 
     @property
