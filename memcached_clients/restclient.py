@@ -38,7 +38,7 @@ class RestclientPymemcacheClient(PymemcacheClient):
                 data = self.client.get(key)
                 if data:
                     return {"response": CachedHTTPResponse(**data)}
-            except (MemcacheError, ConnectionError) as ex:
+            except Exception as ex:
                 logger.error(f"memcached get '{url}': {ex}")
 
     def deleteCache(self, service, url):
@@ -52,7 +52,7 @@ class RestclientPymemcacheClient(PymemcacheClient):
             try:
                 # Bypass the shim client to log the original URL if needed.
                 self.client.set(key, data, expire=expire)
-            except (MemcacheError, ConnectionError) as ex:
+            except Exception as ex:
                 logger.error(f"memcached set '{url}': {ex}")
 
     processResponse = updateCache
