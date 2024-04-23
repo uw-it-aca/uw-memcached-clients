@@ -6,7 +6,7 @@ from django.core.cache.backends.memcached import BaseMemcachedCache
 
 class PymemcacheCache(BaseMemcachedCache):
     """
-    Implementation of a pymemcache binding for Django 2.x.
+    Implementation of a pymemcache binding for Django
     """
     def __init__(self, server, params):
         import pymemcache
