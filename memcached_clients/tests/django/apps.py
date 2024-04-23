@@ -6,5 +6,4 @@ from django.apps import AppConfig
 
 
 class MemcacheTestConfig(AppConfig):
-    name = 'django_backend'
-    path = 'memcached_clients/django_backend'
+    name = 'memcached_clients'
