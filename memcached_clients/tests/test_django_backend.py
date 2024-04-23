@@ -12,7 +12,7 @@ import os
 class PymemcacheCacheBackendTests(TestCase):
     def setUp(self):
         os.environ.setdefault("DJANGO_SETTINGS_MODULE",
-                              "memcached_clients.tests.django_settings")
+                              "memcached_clients.tests.django.settings")
         import django
         from django.conf import settings
 
