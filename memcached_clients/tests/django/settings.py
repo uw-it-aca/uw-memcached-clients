@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 SECRET_KEY = "xxxxxx"
-INSTALLED_APPS = ["django_backend"]
+INSTALLED_APPS = ["memcached_clients.tests.django.apps.MemcacheTestConfig"]
 
 DATABASES = {
     "default": {
