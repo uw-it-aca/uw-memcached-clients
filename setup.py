@@ -1,4 +1,4 @@
-# Copyright 2024 UW-IT, University of Washington
+# Copyright 2025 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -21,7 +21,7 @@ setup(
     name='uw-memcached-clients',
     version=VERSION,
     packages=['memcached_clients'],
-    author="UW-IT T&LS",
+    author="UW-IT Student & Educational Technology Services",
     author_email="aca-it@uw.edu",
     include_package_data=True,
     install_requires=[
