@@ -1,4 +1,4 @@
-# Copyright 2024 UW-IT, University of Washington
+# Copyright 2025 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from pymemcache.exceptions import MemcacheError
@@ -7,7 +7,6 @@ from pymemcache import serde
 from commonconf import settings
 from threading import local
 from logging import getLogger
-import socket
 
 logger = getLogger(__name__)
 
@@ -27,10 +26,11 @@ class PymemcacheClient():
         def handler(*args, **kwargs):
             try:
                 return getattr(self.client, name)(*args, **kwargs)
-            except (MemcacheError, socket.gaierror) as ex:
-                logger.error("memcached {}: {}".format(name, ex))
+            except (MemcacheError, OSError) as ex:
+                logger.error(f"memcached client.{name}: {ex}")
             except AttributeError:
                 raise
+
         return handler
 
     @property

@@ -1,7 +1,7 @@
-# Copyright 2024 UW-IT, University of Washington
+# Copyright 2025 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from memcached_clients import PymemcacheClient, MemcacheError
+from memcached_clients import PymemcacheClient
 from commonconf import settings
 from hashlib import sha1
 from logging import getLogger
@@ -32,9 +32,14 @@ class RestclientPymemcacheClient(PymemcacheClient):
     def getCache(self, service, url, headers=None):
         expire = self.get_cache_expiration_time(service, url)
         if expire is not None:
-            data = self.get(self._create_key(service, url))
-            if data:
-                return {"response": CachedHTTPResponse(**data)}
+            key = self._create_key(service, url)
+            try:
+                # Bypass the shim client to log the original URL if needed.
+                data = self.client.get(key)
+                if data:
+                    return {"response": CachedHTTPResponse(**data)}
+            except Exception as ex:
+                logger.error(f"memcached get '{url}': {ex}")
 
     def deleteCache(self, service, url):
         return self.delete(self._create_key(service, url))
@@ -47,8 +52,8 @@ class RestclientPymemcacheClient(PymemcacheClient):
             try:
                 # Bypass the shim client to log the original URL if needed.
                 self.client.set(key, data, expire=expire)
-            except (MemcacheError, ConnectionError) as ex:
-                logger.error("memcached set: {}, url: {}".format(ex, url))
+            except Exception as ex:
+                logger.error(f"memcached set '{url}': {ex}")
 
     processResponse = updateCache
 

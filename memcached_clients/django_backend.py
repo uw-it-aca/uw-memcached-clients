@@ -1,4 +1,4 @@
-# Copyright 2024 UW-IT, University of Washington
+# Copyright 2025 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from django.core.cache.backends.memcached import BaseMemcachedCache
@@ -6,7 +6,7 @@ from django.core.cache.backends.memcached import BaseMemcachedCache
 
 class PymemcacheCache(BaseMemcachedCache):
     """
-    Implementation of a pymemcache binding for Django 2.x.
+    Implementation of a pymemcache binding for Django
     """
     def __init__(self, server, params):
         import pymemcache

@@ -1,8 +1,8 @@
-# Copyright 2024 UW-IT, University of Washington
+# Copyright 2025 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 SECRET_KEY = "xxxxxx"
-INSTALLED_APPS = ["django_backend"]
+INSTALLED_APPS = ["memcached_clients.tests.django.apps.MemcacheTestConfig"]
 
 DATABASES = {
     "default": {

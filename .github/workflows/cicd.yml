@@ -47,11 +47,9 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - '3.8'
           - '3.10'
           - '3.12'
         django-version:
-          - '3.2'
           - '4.2'
           - '5.2'
 
@@ -87,7 +85,7 @@ jobs:
           DJANGO_TESTS: 1
         run: |
           python -m compileall ${APP_NAME}/
-          coverage run ${APP_NAME}/test.py -v
+          python -Wd -m coverage run ${APP_NAME}/test.py -v
 
       - name: Report Test Coverage
         if: |

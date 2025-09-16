@@ -1,4 +1,4 @@
-# Copyright 2024 UW-IT, University of Washington
+# Copyright 2025 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase, skipUnless
@@ -12,7 +12,7 @@ import os
 class PymemcacheCacheBackendTests(TestCase):
     def setUp(self):
         os.environ.setdefault("DJANGO_SETTINGS_MODULE",
-                              "memcached_clients.tests.django_settings")
+                              "memcached_clients.tests.django.settings")
         import django
         from django.conf import settings
 
