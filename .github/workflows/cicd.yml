@@ -27,8 +27,8 @@ name: tests
 
 env:
   APP_NAME: memcached_clients
-  COVERAGE_DJANGO_VERSION: '4.2'
-  COVERAGE_PYTHON_VERSION: '3.10'
+  COVERAGE_DJANGO_VERSION: '5.2'
+  COVERAGE_PYTHON_VERSION: '3.12'
 
 on:
   push:
