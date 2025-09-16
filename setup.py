@@ -21,7 +21,7 @@ setup(
     name='uw-memcached-clients',
     version=VERSION,
     packages=['memcached_clients'],
-    author="UW-IT T&LS",
+    author="UW-IT SETS",
     author_email="aca-it@uw.edu",
     include_package_data=True,
     install_requires=[
